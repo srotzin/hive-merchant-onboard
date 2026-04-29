@@ -1,0 +1,35 @@
+{
+  "name": "hive-merchant-onboard",
+  "version": "1.0.0",
+  "description": "60-second x402 merchant onboarding. Wallet + middleware + royalty attribution. $9 onboard, 10 bps lifetime royalty.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ethers": "^6.13.4",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
+  },
+  "keywords": [
+    "hive",
+    "x402",
+    "merchant",
+    "onboard",
+    "mcp",
+    "base",
+    "usdc",
+    "royalty",
+    "web3"
+  ],
+  "author": "Steve Rotzin <steve@thehiveryiq.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/srotzin/hive-merchant-onboard.git"
+  }
+}

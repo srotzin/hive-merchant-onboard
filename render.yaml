@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hive-merchant-onboard
+    runtime: node
+    plan: starter
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MERCHANT_KMS_SECRET
+        generateValue: true
+      - key: INTERNAL_TOKEN
+        generateValue: true
+    disk:
+      name: merchant-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /health

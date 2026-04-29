@@ -1,0 +1,43 @@
+name: hive-merchant-onboard
+version: 1.0.0
+description: 60-second x402 merchant onboarding. Issues a fresh Base mainnet wallet, generates ready-to-paste express middleware, and instruments 10 bps royalty attribution for every downstream settlement. $9 USDC flat onboard fee, 10 bps lifetime royalty.
+author: Steve Rotzin <steve@thehiveryiq.com>
+license: MIT
+homepage: https://github.com/srotzin/hive-merchant-onboard
+
+runtime: node
+entrypoint: server.js
+
+server:
+  type: http
+  port: 3000
+  endpoints:
+    mcp: /mcp
+    health: /health
+    agent_card: /.well-known/agent.json
+
+tools:
+  - name: onboard_merchant
+    description: Onboard a new x402 merchant. Issues wallet, middleware snippet, royalty attribution config. Costs $9 USDC via x402 on Base mainnet.
+  - name: get_merchant_status
+    description: Get onboarding status and royalty ledger for a merchant_id.
+  - name: attribute_settlement
+    description: Log a settlement attribution for royalty accounting (internal, requires INTERNAL_TOKEN).
+
+pricing:
+  onboard_flat_usdc: 9
+  royalty_bps: 10
+  payment_protocol: x402
+  network: base
+  asset: USDC
+  treasury: "0x15184bf50b3d3f52b60434f8942b7d52f2eb436e"
+
+tags:
+  - finance
+  - x402
+  - merchant
+  - onboard
+  - base
+  - usdc
+  - royalty
+  - wallet
