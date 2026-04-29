@@ -256,11 +256,41 @@ app.post('/mcp', (req, res) => {
   return res.json({ jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } });
 });
 
+// ── BOGO redemption middleware (X-Hive-BOGO-Token) ─────────────────────────
+// Phase 1: calls hive-gamification /v1/bogo/redeem; bypasses 402 on consumed:true.
+// Phase 2 (planned): zero-trust redemption with token-bound HMAC.
+async function bogoRedeemMiddleware(req, res, next) {
+  const token = req.headers['x-hive-bogo-token'];
+  if (!token) return next();
+  try {
+    const r = await fetch('https://hive-gamification.onrender.com/v1/bogo/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, mechanic_id: 'merchant-onboard' }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      if (j.consumed === true) {
+        req._bogo_redeemed = true;
+        import('fs').then(({ appendFileSync }) => {
+          try { appendFileSync('/tmp/merchant_onboard_bogo_redemptions.jsonl', JSON.stringify({ token: token.slice(0, 12), mechanic_id: 'merchant-onboard', ts: Date.now() }) + '\n'); } catch (_) {}
+        });
+        return next();
+      }
+    }
+  } catch (_) {}
+  return next();
+}
+
 // ── POST /v1/onboard/x402-merchant ────────────────────────────────────────
-app.post('/v1/onboard/x402-merchant', (req, res) => {
+app.post('/v1/onboard/x402-merchant', bogoRedeemMiddleware, async (req, res) => {
   const xPayment = req.headers['x-payment'];
 
-  if (!xPayment) {
+  // BOGO token was consumed upstream — bypass 402 for this call
+  if (req._bogo_redeemed) {
+    // fall through to handler body
+  } else if (!xPayment) {
     // Issue x402 challenge
     res.status(402).json(gen402Response(req));
     return;
